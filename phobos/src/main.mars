@@ -1,2 +1,33 @@
-print("Hello Mars!");
-print("This is a template for Mars development, you can edit this file to start your project.");
+import keyboardDemo;
+import imuVisualizer;
+import keyboard_input;
+
+
+myRobot = Phobos;
+
+KeyboardDemo demo = KeyboardDemo(myRobot);
+IMUVisualizer visualizer = IMUVisualizer(myRobot);
+
+visualizer.setTitle("IMU Visualizer");
+visualizer.setDtHint(0.1::s);
+visualizer.setVectorGain(120.0);
+visualizer.configure();
+
+print("Keyboard Control Demo");
+demo.printInstructions();
+demo.printSpeed();
+demo.stopMotion();
+
+while (true) {
+    string key = keyboard_input.read_command(0.1::s);
+    if (key == "quit") {
+        break;
+    }
+
+    demo.applyKey(key);
+    visualizer.tick();
+}
+
+demo.stopMotion();
+visualizer.close();
+keyboard_input.cleanup();

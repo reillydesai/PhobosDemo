@@ -1,0 +1,13 @@
+component Motor {
+    subcomponents{}
+    parameters{}
+    functions{
+        void spin(float speed);
+    }
+}
+
+component BrushedMotor extends Motor {
+    subcomponents{}
+    parameters{}
+    functions{}
+}
