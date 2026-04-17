@@ -1,5 +1,5 @@
 import keyboardDemo;
-#import imuVisualizer;
+import imuVisualizer;
 import keyboard_input;
 
 
@@ -9,14 +9,12 @@ Phobos.chassis.init();
 
 KeyboardDemo demo = KeyboardDemo(myRobot);
 
-/*
 IMUVisualizer visualizer = IMUVisualizer(myRobot);
 
 visualizer.setTitle("IMU Visualizer");
 visualizer.setDtHint(0.1::s);
 visualizer.setVectorGain(120.0);
 visualizer.configure();
-*/
 print("Keyboard Control Demo");
 
 demo.printInstructions();
@@ -29,9 +27,9 @@ while (true) {
     }
 
     demo.applyKey(key);
-    #visualizer.tick();
+    visualizer.tick();
 }
 
 demo.stopMotion();
-#visualizer.close();
+visualizer.close();
 keyboard_input.cleanup();

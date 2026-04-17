@@ -1,7 +1,6 @@
 import motor_driver;
 import imu_driver;
 import math;
-#import complementaryFilter;
 
 component Phobos extends Robot {
     subcomponents{
@@ -145,7 +144,7 @@ component MPU6050 extends IMU {
         int dlpfConfig = 3;
         int sampleRateDiv = 9;
         float rateHz = 100.0;
-        #ComplementaryFilter orientationFilter = ComplementaryFilter();
+        float orientationAlpha = 0.98;
     }
     functions{
         void init() {
@@ -160,11 +159,8 @@ component MPU6050 extends IMU {
             return imu_driver.read_angular_velocity_rads(bus, address);
         }
         @Override float[] getMagneticField();
-        @Override float[] getOrientation();
-        /*
-        float[] getOrientation() {
-            orientationFilter.updateWithSamples(1.0::s / rateHz, getAngularVelocity(), getAcceleration());
-            return orientationFilter.getOrientationQuaternion();
-        }*/
+        @Override float[] getOrientation() {
+            return imu_driver.read_orientation_quat_complementary(bus, address, orientationAlpha, 1.0 / rateHz);
+        }
     }
 }

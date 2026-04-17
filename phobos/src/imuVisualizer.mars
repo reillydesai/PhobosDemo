@@ -7,10 +7,17 @@ class IMUVisualizer {
     }
 
     IMU imu;
-    Chassis chassis;
 
     bool enabled = true;
     bool configured = false;
+
+    # Defaults match PhobosChassisB so visualizer works without chassis-type coupling.
+    float::m trackWidth = 148::mm;
+    float::m wheelbase = 78::mm;
+    float::m bodyWidth = 180::mm;
+    float::m bodyLength = 117::mm;
+    float::m wheelWidth = 4::mm;
+    float::m wheelDiameter = 35::mm;
 
     string title = "IMU Visualizer";
     float gyroAlpha = 0.22;
@@ -20,7 +27,6 @@ class IMUVisualizer {
     float::s dtHint = 0.0::s;
 
     IMUVisualizer(Robot robot) {
-        chassis = robot.match(Chassis);
         imu = robot.match(IMU);
     }
 
@@ -31,12 +37,12 @@ class IMUVisualizer {
 
         imu.init();
         imu_visualizer.configure(
-            chassis.trackWidth,
-            chassis.wheelbase,
-            chassis.bodyWidth,
-            chassis.bodyLength,
-            chassis.wheelWidth,
-            chassis.wheelDiameter,
+            trackWidth,
+            wheelbase,
+            bodyWidth,
+            bodyLength,
+            wheelWidth,
+            wheelDiameter,
             title,
             gyroAlpha,
             accelAlpha
@@ -98,6 +104,15 @@ class IMUVisualizer {
 
     void setDtHint(float::s dt) {
         dtHint = dt;
+    }
+
+    void setRobotShape(float::m wheelbaseValue, float::m trackWidthValue, float::m bodyWidthValue, float::m bodyLengthValue, float::m wheelWidthValue, float::m wheelDiameterValue) {
+        wheelbase = wheelbaseValue;
+        trackWidth = trackWidthValue;
+        bodyWidth = bodyWidthValue;
+        bodyLength = bodyLengthValue;
+        wheelWidth = wheelWidthValue;
+        wheelDiameter = wheelDiameterValue;
     }
 
 }
