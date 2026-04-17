@@ -1,0 +1,170 @@
+import keyboard_input;
+import math;
+
+class KeyboardDemoTwist {
+
+    requirements {
+        WheeledChassis(parameters=[controlMode == "twist"]);
+        AWSDeepRacerChassis(parameters=[wheelbase > 0.0::m, trackWidth > 0.0::m, wheelWidth > 0.0::m, wheelDiameter > 0.0::m]);
+    }
+
+    string controlMode = "twist";
+    WheeledChassis chassis;
+
+    int speedSetting = 0;
+    float::m/s forwardSlowSpeed = 3.0::m/s;
+    float::m/s forwardFastSpeed = 5.0::m/s;
+    float::m/s backwardSlowSpeed = -3.0::m/s;
+    float::m/s backwardFastSpeed = -5.0::m/s;
+
+    float::deg/s steering = 0.0;
+    float::deg/s steeringStep = .2;
+    float::deg/s minSteering = -1;
+    float::deg/s maxSteering = 1;
+    float::s pollPeriod = 0.1::s;
+
+    void printInstructions() {
+        print("Controls:");
+        print("up arrow: increase linear speed");
+        print("down arrow: decrease linear speed");
+        print("left arrow: steer left");
+        print("right arrow: steer right");
+        print("s: stop");
+        print("?: print instructions");
+        print("esc: quit");
+    }
+
+    KeyboardDemoTwist(Robot robot){
+        chassis = robot.match(WheeledChassis);
+    }
+
+    float::m/s currentLinearSpeed() {
+        if (speedSetting >= 2) {
+            return forwardFastSpeed;
+        }
+        if (speedSetting == 1) {
+            return forwardSlowSpeed;
+        }
+        if (speedSetting == -1) {
+            return backwardSlowSpeed;
+        }
+        if (speedSetting <= -2) {
+            return backwardFastSpeed;
+        }
+        return 0.0::m/s;
+    }
+
+    void printSpeed() {
+        float::m/s linearSpeed = currentLinearSpeed();
+        print("linear speed:", math.round(linearSpeed, 2), "m/s");
+        print("steering:", math.round(steering, 1), "deg/s");
+    }
+
+    void increaseSpeed() {
+        if (speedSetting < 2) {
+            speedSetting = speedSetting + 1;
+        }
+        printSpeed();
+        applyCurrentMotion();
+    }
+
+    void decreaseSpeed() {
+        if (speedSetting > -2) {
+            speedSetting = speedSetting - 1;
+        }
+        printSpeed();
+        applyCurrentMotion();
+    }
+
+    void steerLeft() {
+        steering = math.round(steering - steeringStep, 1);
+        if (steering < minSteering) {
+            steering = minSteering;
+        }
+        printSpeed();
+        applyCurrentMotion();
+    }
+
+    void steerRight() {
+        steering = math.round(steering + steeringStep, 1);
+        if (steering > maxSteering) {
+            steering = maxSteering;
+        }
+        printSpeed();
+        applyCurrentMotion();
+    }
+
+    void applyTwist(float::m/s vx, float::rad/s vw) {
+        chassis.drive(vx, 0.0::m/s, vw);
+    }
+
+    void stopMotion() {
+        speedSetting = 0;
+        steering = 0.0::deg/s;
+        printSpeed();
+        chassis.stop();
+    }
+
+    void applyCurrentMotion() {
+        float::m/s linearSpeed = currentLinearSpeed();
+        if (speedSetting == 0) {
+            chassis.stop();
+            return;
+        }
+        applyTwist(linearSpeed, steering);
+    }
+
+    void applyKey(string key) {
+        if (key == "none") {
+            return;
+        }
+
+        if (key == "speed_up") {
+            increaseSpeed();
+            return;
+        }
+
+        if (key == "speed_down") {
+            decreaseSpeed();
+            return;
+        }
+
+        if (key == "left" || key == "turn_up") {
+            steerLeft();
+            return;
+        }
+
+        if (key == "right" || key == "turn_down") {
+            steerRight();
+            return;
+        }
+
+        if (key == "stop") {
+            stopMotion();
+            return;
+        }
+    }
+
+    void run() {
+        print("KeyboardDemoTwist");
+        print("controlMode", controlMode);
+        printInstructions();
+        printSpeed();
+
+        chassis.stop();
+
+        while (true) {
+            string key = keyboard_input.read_command(pollPeriod);
+
+            if (key == "quit") {
+                break;
+            }
+
+            applyKey(key);
+        }
+
+        chassis.stop();
+        keyboard_input.cleanup();
+    }
+
+}

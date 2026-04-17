@@ -4,8 +4,12 @@ import math;
 
 component Phobos extends Robot {
     subcomponents{
-        # Swap Chassis
+        ## Swap Chassis ##
+
+        # Skid Chassis
         #PhobosChassisA chassis;
+
+        # Differential Chassis
         PhobosChassisB chassis;
 
         MPU6050 imu(bus = 1, address = 104); # 104 = 0x68
@@ -159,7 +163,7 @@ component MPU6050 extends IMU {
             return imu_driver.read_angular_velocity_rads(bus, address);
         }
         @Override float[] getMagneticField();
-        @Override float[] getOrientation() {
+        float[] getOrientation() {
             return imu_driver.read_orientation_quat_complementary(bus, address, orientationAlpha, 1.0 / rateHz);
         }
     }
