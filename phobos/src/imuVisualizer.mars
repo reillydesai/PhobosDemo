@@ -3,12 +3,11 @@ import imu_visualizer;
 class IMUVisualizer {
 
     requirements {
-        AWSDeepRacerChassis(parameters=[wheelbase > 0.0::m, trackWidth > 0.0::m, wheelWidth > 0.0::m, wheelDiameter > 0.0::m]);
         IMU(parameters=[accelerometer, gyro, orientation]);
     }
 
-    AWSDeepRacerChassis chassis;
     IMU imu;
+    Chassis chassis;
 
     bool enabled = true;
     bool configured = false;
@@ -21,7 +20,7 @@ class IMUVisualizer {
     float::s dtHint = 0.0::s;
 
     IMUVisualizer(Robot robot) {
-        chassis = robot.match(AWSDeepRacerChassis);
+        chassis = robot.match(Chassis);
         imu = robot.match(IMU);
     }
 

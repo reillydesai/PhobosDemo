@@ -8,7 +8,7 @@ class KeyboardDemo {
     }
 
     string controlMode = "tank";
-    SkidChassis chassis;
+    Chassis chassis;
     float speed = 0.3;
     float speedStep = 0.1;
     float minSpeed = 0.2;
@@ -18,7 +18,7 @@ class KeyboardDemo {
     string lastMotionKey = "stop";
 
     KeyboardDemo(Robot robot){
-        chassis = robot.match(SkidChassis);
+        chassis = robot.match(Chassis);
     }
 
     void printSpeed() {
@@ -107,12 +107,22 @@ class KeyboardDemo {
 
         lastMotionKey = key;
         applyMotionKey(key);
+        
     }
 
+    void printInstructions(){
+        keyboard_input.print_instructions();
+    }
+
+    void stopMotion(){
+        chassis.stop();
+    }
+
+    /*
     void run() {
         print("KeyboardDemo");
         print("controlMode", controlMode);
-        keyboard_input.print_instructions();
+        
         printSpeed();
 
         chassis.init();
@@ -130,6 +140,6 @@ class KeyboardDemo {
 
         chassis.stop();
         keyboard_input.cleanup();
-    }
+    }*/
 
 }
