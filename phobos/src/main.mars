@@ -14,6 +14,14 @@ IMUVisualizer visualizer = IMUVisualizer(myRobot);
 visualizer.setTitle("IMU Visualizer");
 visualizer.setDtHint(0.1::s);
 visualizer.setVectorGain(120.0);
+visualizer.setRobotShape(
+    Phobos.chassis.wheelbase,
+    Phobos.chassis.trackWidth,
+    Phobos.chassis.bodyWidth,
+    Phobos.chassis.bodyLength,
+    Phobos.chassis.wheelWidth,
+    Phobos.chassis.wheelDiameter
+);
 visualizer.configure();
 print("Keyboard Control Demo");
 
