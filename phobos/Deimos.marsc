@@ -1,0 +1,126 @@
+component Deimos extends Robot {
+
+    subcomponents{
+        AWSDeepRacerChassis chassis;
+        AWSDeepRacerIMU imu;
+    }
+    parameters{}
+    functions{}
+}
+
+component AWSDeepRacerChassis extends AckermannChassis {
+    subcomponents{
+        @Override Motor driveMotor;
+        @Override Motor steerMotor;
+    }
+    parameters{
+        string controlMode = "twist";
+
+        float::m wheelbase = 165::mm;
+        float::m trackWidth = 160::mm;
+        float::m bodyWidth = 7.75::in;
+        float::m bodyLength = 10.5::in;
+        float::m wheelWidth = 40::mm;
+        float::m wheelDiameter = 70::mm;
+
+        # Twist safety/scaling for DeepRacer cmd_vel.
+        float::m/s maxLinearSpeed = 6.0::m/s;
+        float::rad/s maxYawRate = 2.5::rad/s;
+        bool invertLinearX = true;
+
+    }
+    functions{
+        void drive(float::m/s vx, float::m/s vy, float::rad/s vw){
+            float::m/s cmdVx = vx;
+            float::rad/s cmdVw = vw;
+
+            if (cmdVx > maxLinearSpeed) {
+                cmdVx = maxLinearSpeed;
+            }
+            if (cmdVx < -maxLinearSpeed) {
+                cmdVx = -maxLinearSpeed;
+            }
+
+            if (cmdVw > maxYawRate) {
+                cmdVw = maxYawRate;
+            }
+            if (cmdVw < -maxYawRate) {
+                cmdVw = -maxYawRate;
+            }
+
+            if (invertLinearX) {
+                cmdVx = -cmdVx;
+            }
+            publish("/cmd_vel", "geometry_msgs/msg/Twist", {
+            "linear": {"x": cmdVx, "y": 0.0, "z": 0.0},
+            "angular": {"x": 0.0, "y": 0.0, "z": cmdVw} });
+        }
+
+        void stop(){
+            publish("/cmd_vel", "geometry_msgs/msg/Twist", {
+            "linear": {"x": 0.0, "y": 0.0, "z": 0.0},
+            "angular": {"x": 0.0, "y": 0.0, "z": 0.0} });
+        }
+    }
+}
+
+
+/*
+
+/cmd_vel (geometry_msgs/msg/Twist)
+  linear:
+    x: float
+    y: float
+    z: float
+  angular: geometry_msgs/Vector3
+
+*/
+
+component AWSDeepRacerIMU extends IMU {
+    subcomponents{}
+    parameters{
+        bool accelerometer = true;
+        bool gyro = true;
+        bool magnetometer = false;
+        bool orientation = true;
+        int axisCount = 3;
+        int bus = -1;      # N/A for ROS topic source
+        int address = -1;  # N/A for ROS topic source
+        float rateHz = 100.0;
+
+        float::m/s^2 linearAccelX = subscribe("/imu_pkg/data_raw/linear_acceleration/x", "sensor_msgs/msg/Imu");
+        float::m/s^2 linearAccelY = subscribe("/imu_pkg/data_raw/linear_acceleration/y", "sensor_msgs/msg/Imu");
+        float::m/s^2 linearAccelZ = subscribe("/imu_pkg/data_raw/linear_acceleration/z", "sensor_msgs/msg/Imu");
+
+        float::rad/s angularVelX = subscribe("/imu_pkg/data_raw/angular_velocity/x", "sensor_msgs/msg/Imu");
+        float::rad/s angularVelY = subscribe("/imu_pkg/data_raw/angular_velocity/y", "sensor_msgs/msg/Imu");
+        float::rad/s angularVelZ = subscribe("/imu_pkg/data_raw/angular_velocity/z", "sensor_msgs/msg/Imu");
+
+        float orientationX = subscribe("/imu_pkg/data_raw/orientation/x", "sensor_msgs/msg/Imu");
+        float orientationY = subscribe("/imu_pkg/data_raw/orientation/y", "sensor_msgs/msg/Imu");
+        float orientationZ = subscribe("/imu_pkg/data_raw/orientation/z", "sensor_msgs/msg/Imu");
+        float orientationW = subscribe("/imu_pkg/data_raw/orientation/w", "sensor_msgs/msg/Imu");
+    }
+    functions{
+        void init() {
+            update();
+        }
+
+        float::m/s^2[] getAcceleration() {
+            update();
+            return [linearAccelX, linearAccelY, linearAccelZ];
+        }
+
+        float::rad/s[] getAngularVelocity() {
+            update();
+            return [angularVelX, angularVelY, angularVelZ];
+        }
+
+        @Override float[] getMagneticField();
+
+        float[] getOrientation() {
+            update();
+            return [orientationX, orientationY, orientationZ, orientationW];
+        }
+    }
+}
