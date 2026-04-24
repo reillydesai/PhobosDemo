@@ -5,7 +5,6 @@ class KeyboardDemoTwist {
 
     requirements {
         WheeledChassis(parameters=[controlMode == "twist"]);
-        AWSDeepRacerChassis(parameters=[wheelbase > 0.0::m, trackWidth > 0.0::m, wheelWidth > 0.0::m, wheelDiameter > 0.0::m]);
     }
 
     string controlMode = "twist";

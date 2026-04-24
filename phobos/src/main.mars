@@ -3,13 +3,11 @@ import imuVisualizer;
 import keyboard_input;
 
 
-Robot myRobot = Phobos;
 Phobos.chassis.init();
 
+KeyboardDemo demo = KeyboardDemo(Phobos);
 
-KeyboardDemo demo = KeyboardDemo(myRobot);
-
-IMUVisualizer visualizer = IMUVisualizer(myRobot);
+IMUVisualizer visualizer = IMUVisualizer(Phobos);
 
 visualizer.setTitle("IMU Visualizer");
 visualizer.setDtHint(0.1::s);
